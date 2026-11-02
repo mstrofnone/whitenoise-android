@@ -184,6 +184,7 @@ import dev.ipf.whitenoise.android.ui.chats.newchat.NewMessageDirectChatResolutio
 import dev.ipf.whitenoise.android.ui.chats.relaysConnectedFromHealth
 import dev.ipf.whitenoise.android.ui.conversation.media.StagedUploadSource
 import dev.ipf.whitenoise.android.ui.conversation.media.closeQuietly
+import dev.ipf.whitenoise.android.ui.conversation.presentAttachmentAdmission
 import dev.ipf.whitenoise.android.ui.onboarding.SignUpController
 import dev.ipf.whitenoise.android.ui.onboarding.setup.AccountSetupCoordinator
 import dev.ipf.whitenoise.android.ui.onboarding.setup.setupOptions
@@ -3024,17 +3025,19 @@ class WhiteNoiseAppState private constructor(
         accountRef: String?,
         groupIdHex: String,
         value: TextFieldValue,
+        textChanged: Boolean? = null,
     ) {
         accountRef ?: return
-        setDraftForAccount(accountRef, groupIdHex, value)
+        setDraftForAccount(accountRef, groupIdHex, value, textChanged)
     }
 
     private fun setDraftForAccount(
         accountRef: String,
         groupIdHex: String,
         value: TextFieldValue,
+        textChanged: Boolean? = null,
     ) {
-        composerDraftExpansionBridge.setDraft(accountRef, groupIdHex, value)
+        composerDraftExpansionBridge.setDraft(accountRef, groupIdHex, value, textChanged)
     }
 
     /** Current draft generation used to bind an explicit composer resize. */
@@ -4020,17 +4023,8 @@ class WhiteNoiseAppState private constructor(
                     accountRef,
                 )
                 if (payload.importReady && payload.streamUris.isNotEmpty()) shareStaging.notifyTextStaged()
-                if (droppedCount > 0) {
-                    presentText(
-                        AppText.Plain(
-                            appContext.resources.getQuantityString(
-                                R.plurals.toast_share_attachments_dropped,
-                                droppedCount,
-                                droppedCount,
-                            ),
-                        ),
-                    )
-                }
+                val offered = payload.streamUris.size
+                presentAttachmentAdmission(appContext, (offered - droppedCount).coerceAtLeast(0), offered)
                 true
             }
         }
@@ -7578,6 +7572,7 @@ class WhiteNoiseAppState private constructor(
 
     /** Retires only the signed-out account's transient drafts and controllers, preserving a replacement account. */
     private fun clearSignedOutAccountMemory(account: String) {
+        attachmentCollections.forgetAccount(account)
         composerExpansionStateRetention.removeAccount(account)
         composerDraftExpansionBridge.removeAccount(account)
         pendingMessageEditHandoff.removeAccount(account)
@@ -7680,6 +7675,7 @@ class WhiteNoiseAppState private constructor(
             }
             chatMutePreferences.removeAccount(wipedRef)
             defaultDisappearingMessagesPreferences.removeAccount(wipedRef)
+            attachmentCollections.forgetAccount(wipedRef)
             composerExpansionStateRetention.removeAccount(wipedRef)
             composerDraftExpansionBridge.removeAccount(wipedRef)
             pendingMessageEditHandoff.removeAccount(wipedRef)
