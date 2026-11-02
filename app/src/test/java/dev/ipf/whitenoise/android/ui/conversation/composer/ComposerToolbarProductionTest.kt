@@ -21,6 +21,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -330,9 +331,11 @@ class ComposerToolbarProductionTest {
             )
         composeRule.onNodeWithTag("composer.shortcut.more").performTouchInput { click() }
         composeRule.onNodeWithText(context.getString(R.string.attachment_camera)).assertIsDisplayed()
+        composeRule.onNode(isPopup()).assertIsDisplayed()
         composeRule.runOnIdle { assertTrue(customize.action()) }
         composeRule.onNodeWithTag("composer.customize").assertIsDisplayed()
-        composeRule.onNodeWithText(context.getString(R.string.attachment_camera)).assertDoesNotExist()
+        composeRule.onNodeWithTag("composer.customize.label.camera").assertIsDisplayed()
+        composeRule.onNode(isPopup()).assertDoesNotExist()
         // The toolbar callback stays attached; a detached Popup's framework clickable throws before app code.
         composeRule.runOnIdle { previousToolbarClick() }
         assertEquals(0, cameraCalls)

@@ -83,6 +83,115 @@
           "CON-040"
         ]
       }
+    ],
+    "source_coverage": [
+      {
+        "surface": "R.string.cancel",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/conversation/composer/ComposerToolbarEditor.kt",
+        "anchor": "R.string.cancel",
+        "test_ids": [
+          "CON-041"
+        ]
+      },
+      {
+        "surface": "R.string.composer_add",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/conversation/composer/ComposerToolbarEditor.kt",
+        "anchor": "R.string.composer_add",
+        "test_ids": [
+          "CON-041"
+        ]
+      },
+      {
+        "surface": "R.string.composer_available",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/conversation/composer/ComposerToolbarEditor.kt",
+        "anchor": "R.string.composer_available",
+        "test_ids": [
+          "CON-041"
+        ]
+      },
+      {
+        "surface": "R.string.composer_layout",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/conversation/composer/ComposerToolbarEditor.kt",
+        "anchor": "R.string.composer_layout",
+        "test_ids": [
+          "CON-040",
+          "CON-041"
+        ]
+      },
+      {
+        "surface": "R.string.composer_layout_automatic",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/conversation/composer/ComposerToolbarEditor.kt",
+        "anchor": "R.string.composer_layout_automatic",
+        "test_ids": [
+          "CON-040",
+          "CON-041"
+        ]
+      },
+      {
+        "surface": "R.string.composer_layout_expanded",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/conversation/composer/ComposerToolbarEditor.kt",
+        "anchor": "R.string.composer_layout_expanded",
+        "test_ids": [
+          "CON-040",
+          "CON-041"
+        ]
+      },
+      {
+        "surface": "R.string.composer_move_earlier",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/conversation/composer/ComposerToolbarEditor.kt",
+        "anchor": "R.string.composer_move_earlier",
+        "test_ids": [
+          "CON-041"
+        ]
+      },
+      {
+        "surface": "R.string.composer_move_later",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/conversation/composer/ComposerToolbarEditor.kt",
+        "anchor": "R.string.composer_move_later",
+        "test_ids": [
+          "CON-041"
+        ]
+      },
+      {
+        "surface": "R.string.composer_remove",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/conversation/composer/ComposerToolbarEditor.kt",
+        "anchor": "R.string.composer_remove",
+        "test_ids": [
+          "CON-041"
+        ]
+      },
+      {
+        "surface": "R.string.composer_reset",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/conversation/composer/ComposerToolbarEditor.kt",
+        "anchor": "R.string.composer_reset",
+        "test_ids": [
+          "CON-041"
+        ]
+      },
+      {
+        "surface": "R.string.composer_save_failed",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/conversation/composer/ComposerToolbarEditor.kt",
+        "anchor": "R.string.composer_save_failed",
+        "test_ids": [
+          "CON-041"
+        ]
+      },
+      {
+        "surface": "R.string.composer_selected",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/conversation/composer/ComposerToolbarEditor.kt",
+        "anchor": "R.string.composer_selected",
+        "test_ids": [
+          "CON-041"
+        ]
+      },
+      {
+        "surface": "R.string.done",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/conversation/composer/ComposerToolbarEditor.kt",
+        "anchor": "R.string.done",
+        "test_ids": [
+          "CON-041"
+        ]
+      }
     ]
   },
   "discovery_exceptions": []

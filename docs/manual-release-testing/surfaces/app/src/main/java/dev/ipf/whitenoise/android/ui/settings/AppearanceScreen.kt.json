@@ -165,6 +165,24 @@
           "SET-001"
         ]
       }
+    ],
+    "source_coverage": [
+      {
+        "surface": "R.string.composer_settings",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/settings/AppearanceScreen.kt",
+        "anchor": "R.string.composer_settings",
+        "test_ids": [
+          "CON-041"
+        ]
+      },
+      {
+        "surface": "R.string.composer_settings_detail",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/settings/AppearanceScreen.kt",
+        "anchor": "R.string.composer_settings_detail",
+        "test_ids": [
+          "CON-041"
+        ]
+      }
     ]
   },
   "discovery_exceptions": []

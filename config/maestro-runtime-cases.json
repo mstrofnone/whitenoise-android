@@ -9,7 +9,7 @@
       "manual_ids": [
         "SET-001"
       ],
-      "assertions": "Appearance opens its expected content; toolbar Back returns to Settings and Chats.",
+      "assertions": "Appearance opens its theme content; Composer opens the shared editor and Done control, Cancel returns to Appearance, and toolbar Back returns to Settings and Chats. Navigation assertions only; no saved preference or gesture proof.",
       "postcondition": "none"
     },
     "settings-notifications": {

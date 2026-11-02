@@ -13,6 +13,16 @@
           "CON-040"
         ]
       }
+    ],
+    "source_coverage": [
+      {
+        "surface": "R.string.composer_settings",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/settings/ComposerSettingsScreen.kt",
+        "anchor": "R.string.composer_settings",
+        "test_ids": [
+          "CON-041"
+        ]
+      }
     ]
   },
   "discovery_exceptions": []
