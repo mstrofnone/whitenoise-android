@@ -74,6 +74,7 @@ internal fun AppearanceScreen(
     onOpenChatBubbleColors: () -> Unit,
     onOpenLanguage: () -> Unit,
     onOpenCustomEmoji: () -> Unit,
+    onOpenComposer: () -> Unit = {},
 ) {
     var fontFamilyOpen by rememberSaveable { mutableStateOf(false) }
     var fontSizeOpen by rememberSaveable { mutableStateOf(false) }
@@ -136,6 +137,18 @@ internal fun AppearanceScreen(
                             checked = appState.quickAccountSwitching,
                             subtitle = stringResource(R.string.quick_account_switching_detail),
                             onCheckedChange = appState::updateQuickAccountSwitching,
+                        )
+                    }
+                }
+            }
+            item {
+                SettingsGroup {
+                    row("composer") { context ->
+                        SettingsLink(
+                            context = context,
+                            title = stringResource(R.string.composer_settings),
+                            subtitle = stringResource(R.string.composer_settings_detail),
+                            onClick = onOpenComposer,
                         )
                     }
                 }

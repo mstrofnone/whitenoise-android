@@ -112,7 +112,12 @@ class ComposerCompactLayoutTest {
         }
         val sign = if (direction == LayoutDirection.Ltr) 1f else -1f
         controls.zipWithNext().forEach { (first, second) ->
-            assertEquals("icon centers use the same 40 dp rhythm", 40f, (second.center.x - first.center.x) * sign, 1f)
+            assertEquals(
+                "selected icon centers retain nonoverlapping targets",
+                if (identity) 48f else 40f,
+                (second.center.x - first.center.x) * sign,
+                1f,
+            )
             assertTrue("controls retain their 48 dp height", first.height >= 48f && second.height >= 48f)
         }
     }

@@ -299,32 +299,54 @@ class ComposerToolbarSpacingScreenshotTest {
                     add(bounds("Paste from clipboard"))
                 }
             assertTargets(controls, sign)
-            val trailing =
-                listOf(
-                    bounds("Dictate text"),
-                    bounds(if (case.draft.isEmpty()) "Hold to record voice message" else "Send"),
-                )
-            assertTargets(trailing, sign)
-            val row = (controls + trailing).sortedBy { it.left }
-            row.zipWithNext().forEach { (first, second) ->
-                assertTrue("visual slots do not overlap", first.right <= second.left + 1f)
+            val dictation = bounds("Dictate text")
+            val primary = bounds(if (case.draft.isEmpty()) "Hold to record voice message" else "Send")
+            val selected = controls + dictation + if (case.draft.isEmpty()) listOf(primary) else emptyList()
+            assertTargets(selected, sign)
+            assertFootprints(listOf(primary))
+            val all = (selected + if (case.draft.isNotEmpty()) listOf(primary) else emptyList())
+            all.forEachIndexed { index, first ->
+                all.drop(index + 1).forEach { second ->
+                    val overlap =
+                        first.left < second.right - 1f &&
+                            first.right > second.left + 1f &&
+                            first.top < second.bottom - 1f &&
+                            first.bottom > second.top + 1f
+                    assertTrue("every configured and protected control keeps a distinct footprint", !overlap)
+                }
             }
             val editor = composeRule.onNode(hasSetTextAction()).fetchSemanticsNode().boundsInRoot
-            assertTrue("editor remains usable", editor.width > 1f && editor.height > 1f)
+            assertTrue(
+                "editor retains the minimum usable composing width",
+                editor.width >= 96f * case.fontScale && editor.height > 1f,
+            )
         }
     }
 
-    /** Asserts adjacent controls are 40 px apart centre to centre in reading order and each fills a 40 by 48 slot. */
+    /** Configured controls retain reading order at48dp spacing, wrapping onto distinct rows as needed. */
     private fun assertTargets(
         controls: List<androidx.compose.ui.geometry.Rect>,
         sign: Float,
     ) {
         controls.zipWithNext().forEach { (first, second) ->
-            assertEquals("all adjacent toolbar centers", 40f, (second.center.x - first.center.x) * sign, 1f)
+            if (kotlin.math.abs(second.center.y - first.center.y) <= 1f) {
+                assertEquals(
+                    "adjacent selected controls on one row",
+                    48f,
+                    (second.center.x - first.center.x) * sign,
+                    1f,
+                )
+            } else {
+                assertTrue("wrapped controls preserve logical row order", second.top >= first.bottom - 1f)
+            }
         }
+        assertFootprints(controls)
+    }
+
+    private fun assertFootprints(controls: List<androidx.compose.ui.geometry.Rect>) {
         controls.forEach {
-            assertEquals("compact visual slot width", 40f, it.width, 1f)
-            assertEquals("compact visual slot height", 48f, it.height, 1f)
+            assertEquals("nonoverlapping interaction width", 48f, it.width, 1f)
+            assertEquals("interaction height", 48f, it.height, 1f)
         }
     }
 

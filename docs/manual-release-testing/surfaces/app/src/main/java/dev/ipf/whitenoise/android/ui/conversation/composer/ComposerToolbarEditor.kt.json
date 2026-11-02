@@ -1,0 +1,89 @@
+{
+  "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/conversation/composer/ComposerToolbarEditor.kt",
+  "legacy_sha256": "355dccf5b36f7d464c28d3527e85afd135ca2b82c1bfe550f8e3716587d06bb8",
+  "categories": {
+    "composable_surfaces": [
+      {
+        "surface": "ComposerToolbarEditor",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/conversation/composer/ComposerToolbarEditor.kt",
+        "anchor": "fun ComposerToolbarEditor(",
+        "test_ids": [
+          "CON-041",
+          "CON-042",
+          "CON-040"
+        ]
+      },
+      {
+        "surface": "ComposerShortcutEditRow",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/conversation/composer/ComposerToolbarEditor.kt",
+        "anchor": "fun ComposerShortcutEditRow(",
+        "test_ids": [
+          "CON-041",
+          "CON-042",
+          "CON-040"
+        ]
+      },
+      {
+        "surface": "ComposerShortcutDragHandle",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/conversation/composer/ComposerToolbarEditor.kt",
+        "anchor": "fun ComposerShortcutDragHandle(",
+        "test_ids": [
+          "CON-041",
+          "CON-042",
+          "CON-040"
+        ]
+      },
+      {
+        "surface": "ComposerToolbarPalette",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/conversation/composer/ComposerToolbarEditor.kt",
+        "anchor": "fun ComposerToolbarPalette(",
+        "test_ids": [
+          "CON-041",
+          "CON-042",
+          "CON-040"
+        ]
+      },
+      {
+        "surface": "ComposerToolbarAutoScroll",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/conversation/composer/ComposerToolbarEditor.kt",
+        "anchor": "fun ComposerToolbarAutoScroll(",
+        "test_ids": [
+          "CON-041",
+          "CON-042",
+          "CON-040"
+        ]
+      },
+      {
+        "surface": "ComposerToolbarLayoutChoices",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/conversation/composer/ComposerToolbarEditor.kt",
+        "anchor": "fun ComposerToolbarLayoutChoices(",
+        "test_ids": [
+          "CON-041",
+          "CON-042",
+          "CON-040"
+        ]
+      },
+      {
+        "surface": "ComposerShortcutMoveControls",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/conversation/composer/ComposerToolbarEditor.kt",
+        "anchor": "fun ComposerShortcutMoveControls(",
+        "test_ids": [
+          "CON-041",
+          "CON-042",
+          "CON-040"
+        ]
+      },
+      {
+        "surface": "ComposerShortcutToggleButton",
+        "source": "app/src/main/java/dev/ipf/whitenoise/android/ui/conversation/composer/ComposerToolbarEditor.kt",
+        "anchor": "fun ComposerShortcutToggleButton(",
+        "test_ids": [
+          "CON-041",
+          "CON-042",
+          "CON-040"
+        ]
+      }
+    ]
+  },
+  "discovery_exceptions": []
+}
