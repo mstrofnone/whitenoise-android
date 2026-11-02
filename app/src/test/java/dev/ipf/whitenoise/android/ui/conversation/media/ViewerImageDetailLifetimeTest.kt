@@ -197,6 +197,7 @@ class ViewerImageDetailLifetimeTest {
         }
         rule.waitUntil(10_000) { requests.size == 1 }
         rule.runOnIdle { geometry = geometry.copy(width = 800, height = 800) }
+        rule.waitForIdle()
         rule.waitUntil(10_000) { requests.size == 2 }
         rule.waitForIdle()
         rule.runOnIdle {

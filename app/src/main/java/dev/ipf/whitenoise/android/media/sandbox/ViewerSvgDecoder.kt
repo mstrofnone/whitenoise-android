@@ -49,10 +49,10 @@ internal object ViewerSvgDecoder {
         region: ViewerSvgRegion,
         edge: Int,
     ): Bitmap? {
-        if (!region.validFor(source.info.width, source.info.height)) return null
         // A vector crop must rerender at viewport resolution even when its document region
         // is only a few units wide; raster targetDimensions deliberately never upscales.
-        val target = region.targetSize(edge) ?: return null
+        val target =
+            region.takeIf { it.validFor(source.info.width, source.info.height) }?.targetSize(edge) ?: return null
         val width = target.width
         val height = target.height
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
