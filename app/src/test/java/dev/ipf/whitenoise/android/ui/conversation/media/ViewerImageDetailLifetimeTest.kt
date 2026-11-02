@@ -173,4 +173,39 @@ class ViewerImageDetailLifetimeTest {
         rule.waitForIdle()
         rule.runOnIdle { assertTrue(newestBitmap.isRecycled) }
     }
+
+    /** A resized vector viewport must replace a same-region tile whose old pixel demand is too small. */
+    @Test
+    fun vectorViewportResizeRequestsNewResolutionAndRecyclesRetiredPixels() {
+        var geometry by mutableStateOf(ViewerViewportGeometry(400, 400, 24, 24, 1024f, Offset.Zero))
+        var active by mutableStateOf(true)
+        val requests = mutableListOf<ViewerDetailRegion.Vector>()
+        val pixels = mutableListOf<Bitmap>()
+        val source = ViewerOriginalImage(byteArrayOf(1), ImageInspection(24, 24, "image/svg+xml", 1))
+        rule.setContent {
+            ViewerImageDetailLayer(
+                source,
+                geometry,
+                active,
+                decode = { _, region ->
+                    requests += region as ViewerDetailRegion.Vector
+                    val bitmap = Bitmap.createBitmap(2, 2, Bitmap.Config.ARGB_8888)
+                    pixels += bitmap
+                    ViewerImageDetail(bitmap, region)
+                },
+            )
+        }
+        rule.waitUntil(10_000) { requests.size == 1 }
+        rule.runOnIdle { geometry = geometry.copy(width = 800, height = 800) }
+        rule.waitUntil(10_000) { requests.size == 2 }
+        rule.waitForIdle()
+        rule.runOnIdle {
+            assertEquals(requests[0].region, requests[1].region)
+            assertTrue(requests[1].edge > requests[0].edge)
+            assertTrue(pixels[0].isRecycled)
+            active = false
+        }
+        rule.waitForIdle()
+        rule.runOnIdle { assertTrue(pixels[1].isRecycled) }
+    }
 }

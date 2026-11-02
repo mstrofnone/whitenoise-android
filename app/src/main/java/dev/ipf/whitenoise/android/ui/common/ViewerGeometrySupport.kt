@@ -3,30 +3,41 @@ package dev.ipf.whitenoise.android.ui.common
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEvent
 
-/** Finite bounds and focal geometry shared by the existing viewer transform operations. */
+/** Accepts positive finite dimensions; zero, negative values and infinities are invalid. */
 internal fun positiveFinite(value: Float): Boolean = value.isFinite() && value > 0f
 
+/** Accepts finite scales at or above the viewer minimum, including the fitted scale. */
 internal fun validViewerScale(value: Float): Boolean = value.isFinite() && value >= VIEWER_MIN_SCALE
 
+/** Requires both offset components to be finite before applying a transform. */
 internal fun Offset.isFiniteOffset(): Boolean = x.isFinite() && y.isFinite()
 
+/** Checks finiteness only; callers that require positive dimensions use [validViewport]. */
 internal fun finiteViewport(
     width: Float,
     height: Float,
 ): Boolean = width.isFinite() && height.isFinite()
 
+/** Requires positive finite viewport dimensions for fit and pointer geometry. */
 internal fun validViewport(
     width: Float,
     height: Float,
 ): Boolean = positiveFinite(width) && positiveFinite(height)
 
+/** Allows zero pan range but rejects negative or nonfinite extents. */
 internal fun validPanExtents(
     maxX: Float,
     maxY: Float,
 ): Boolean = finiteViewport(maxX, maxY) && maxX >= 0f && maxY >= 0f
 
+/** Allows an absent focal point, or an offset with two finite components. */
 internal fun validCentroid(centroid: Offset?): Boolean = centroid == null || centroid.isFiniteOffset()
 
+/**
+ * Preserves a validated focal point while applying the new-to-old scale [ratio].
+ * The centroid is viewport-local; [offset] is relative to the viewport center.
+ * An absent centroid keeps [offset] unchanged.
+ */
 internal fun viewerAnchoredOffset(
     offset: Offset,
     centroid: Offset?,
@@ -40,6 +51,7 @@ internal fun viewerAnchoredOffset(
     return if (centroid == null) offset else offset + (centered - offset) * (1f - ratio)
 }
 
+/** Aspect-fits positive, previously validated image and viewport dimensions without cropping. */
 internal fun fitKnownViewerImage(
     viewportWidth: Float,
     viewportHeight: Float,
@@ -62,6 +74,7 @@ internal class ViewerGestureConsumption(
     private var pan = Offset.Zero
     private var ownsGesture = false
 
+    /** Acquires ownership on two pointers or cumulative pan beyond slop, then keeps it for this gesture. */
     fun shouldConsume(
         pressedCount: Int,
         delta: Offset,
@@ -71,6 +84,7 @@ internal class ViewerGestureConsumption(
         return ownsGesture
     }
 
+    /** Consumes every pointer change only after this gesture has acquired input ownership. */
     fun consumeIfNeeded(
         event: PointerEvent,
         pressedCount: Int,

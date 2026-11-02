@@ -102,7 +102,39 @@ class ViewerSvgDecoderTest {
         val bytes = svg("""<rect width="10" height="10"/>""")
         assertNull(ViewerSvgDecoder.region(bytes, ViewerSvgRegion(-1.0, 0.0, 100.0, 100.0), 256))
         assertNull(ViewerSvgDecoder.region(bytes, ViewerSvgRegion(0.0, 0.0, 4097.0, 100.0), 256))
-        assertNull(ViewerSvgDecoder.region(bytes, ViewerSvgRegion(0.0, 0.0, 100.0, 100.0), 2049))
+        assertNull(ViewerSvgDecoder.region(bytes, ViewerSvgRegion(0.0, 0.0, 100.0, 100.0), 4097))
         assertNull(ViewerSvgDecoder.region(bytes, ViewerSvgRegion(0.0, 0.0, 100.0, 100.0), 0))
+    }
+
+    /** A tall phone crop stays sharp without allocating an edge-squared output, including transparent holes. */
+    @Test
+    fun phoneShapedVectorCropRendersActualDisplayPixelsInsideSixteenMiB() {
+        val region = ViewerSvgRegion(100.0, 100.0, 101.43925, 102.80275)
+        val target = requireNotNull(region.targetSize(2803))
+        val bitmap =
+            requireNotNull(
+                ViewerSvgDecoder.region(
+                    svg("""<rect x="100" y="100" width="0.001" height="3" fill="red"/>"""),
+                    region,
+                    2803,
+                ),
+            )
+        try {
+            assertEquals(target.width, bitmap.width)
+            assertEquals(target.height, bitmap.height)
+            assertTrue(bitmap.width >= 1439.25 && bitmap.height >= 2802.75)
+            assertTrue(bitmap.allocationByteCount <= 16 * 1024 * 1024)
+            assertTrue(Color.red(bitmap.getPixel(0, 100)) > 240)
+            assertEquals(0, Color.alpha(bitmap.getPixel(100, 100)))
+        } finally {
+            bitmap.recycle()
+        }
+        val square =
+            requireNotNull(ViewerSvgDecoder.region(svg("<rect/>"), ViewerSvgRegion(0.0, 0.0, 24.0, 24.0), 4096))
+        try {
+            assertTrue(square.allocationByteCount <= 16 * 1024 * 1024)
+        } finally {
+            square.recycle()
+        }
     }
 }

@@ -43,10 +43,13 @@ class ReusableSvgPayloadTest {
                             transport,
                             input,
                             output,
-                            MediaDecodeRequest(1, false, MediaDecodePolicy.VIEWER_SVG_REGION, svgRegion = region),
+                            MediaDecodeRequest(2803, false, MediaDecodePolicy.VIEWER_SVG_REGION, svgRegion = region),
                         ) as Bundle
                     assertEquals(MediaDecodePolicy.VIEWER_SVG_REGION, payload.getInt("operation"))
                     assertEquals(region, readViewerSvgRegion(payload))
+                    assertEquals(2803, payload.getInt("edge"))
+                    assertFalse(payload.containsKey("width"))
+                    assertFalse(payload.containsKey("height"))
                     assertFalse(payload.containsKey("left"))
                     val raster =
                         method.invoke(

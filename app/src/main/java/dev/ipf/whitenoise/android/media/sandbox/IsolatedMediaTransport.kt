@@ -304,7 +304,7 @@ internal class IsolatedMediaTransport(
             ) {
                 return@serialized null
             }
-            val capacity = MediaDecodePolicy.outputCapacity(edge) ?: return@serialized null
+            val capacity = region.targetSize(edge)?.capacity ?: return@serialized null
             SharedMemory.create("media-vector-region", capacity).use { output ->
                 ticket.session.sources.withInput(bytes) { input ->
                     exchange(

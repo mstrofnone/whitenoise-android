@@ -22,7 +22,7 @@ internal object ViewerSvgDecoder {
             (dev.ipf.whitenoise.android.BuildConfig.DEBUG && inProcessTestDecoding)
 
     private const val MAX_DOCUMENT_EDGE = 8192f
-    const val MAX_VIEWPORT_EDGE = 2048
+    const val MAX_VIEWPORT_EDGE = MediaDecodePolicy.MAX_EDGE
 
     fun inspect(bytes: ByteArray): ImageInspection? =
         if (canDecodeHere()) {
@@ -33,7 +33,7 @@ internal object ViewerSvgDecoder {
             null
         }
 
-    /** [region] is in the inspected document's pixel coordinate system, never preview pixels. */
+    /** Rerenders fractional document coordinates with the shared rectangular 16 MiB output cap. */
     fun region(
         bytes: ByteArray,
         region: ViewerSvgRegion,
@@ -52,9 +52,9 @@ internal object ViewerSvgDecoder {
         if (!region.validFor(source.info.width, source.info.height)) return null
         // A vector crop must rerender at viewport resolution even when its document region
         // is only a few units wide; raster targetDimensions deliberately never upscales.
-        val ratio = edge.toDouble() / maxOf(region.width, region.height)
-        val width = (region.width * ratio).toInt().coerceIn(1, edge)
-        val height = (region.height * ratio).toInt().coerceIn(1, edge)
+        val target = region.targetSize(edge) ?: return null
+        val width = target.width
+        val height = target.height
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         var completed = false
         return try {
@@ -72,6 +72,10 @@ internal object ViewerSvgDecoder {
         }
     }
 
+    /**
+     * Parses only policy-admitted UTF-8 in the permissionless worker, with entities disabled.
+     * The original document dimensions define fractional crop coordinates even after viewport resizing.
+     */
     private fun document(bytes: ByteArray): Document {
         val xml = GroupSvgPolicy.validateForViewer(bytes)
         SVG.setInternalEntitiesEnabled(false)

@@ -12,8 +12,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
-import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -50,28 +50,42 @@ class ChatSvgPickTest {
         IsolatedMediaDecoder.installTestTransport(TestMediaDecodeTransport)
     }
 
+    /** SVG image picks cannot bypass metadata removal; an established safe raster fallback may still succeed. */
     @Test
-    fun imageAndDocumentPickPreserveValidatedVectorBytesAtEveryQuality() =
+    fun imageAndDocumentPicksNeverSendOriginalSvgMetadataAtAnyQuality() =
         runBlocking {
             val bytes =
                 (
-                    """<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><t""" +
-                        """ext x="1" y="12" font-size="8">Detail</text></svg>"""
+                    """<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">""" +
+                        "<!--synthetic-private-generator--><title>synthetic-private-title</title>" +
+                        "<desc>synthetic-private-description</desc>" +
+                        """<rect width="24" height="24" fill="red"/></svg>"""
                 ).toByteArray()
             val uri = pick(bytes)
             val reader = ConversationAttachmentReader(fixture.state, context)
             for (quality in MediaQuality.entries) {
                 fixture.state.updateMediaQuality(quality)
                 val image = withContext(Dispatchers.IO) { reader.readImageAttachment(uri, 1024).attachment }
-                assertArrayEquals(bytes, requireNotNull(image).plaintextBytes)
-                assertEquals("image/svg+xml", image.mediaType)
-                assertEquals("24x24", image.dim)
-                val document = reader.readPickedDocuments(listOf(uri)).attachments.single()
-                assertArrayEquals(bytes, document.plaintextBytes)
-                assertEquals("image/svg+xml", document.mediaType)
-                assertNull(document.sourceFile)
+                image?.let { assertMetadataSafeFallback(it, bytes) }
+                val document = reader.readPickedDocuments(listOf(uri))
+                assertTrue(document.attachments.size <= 1)
+                document.attachments.forEach { assertMetadataSafeFallback(it, bytes) }
+                if (document.attachments.isEmpty()) {
+                    assertTrue(DocumentReadFailure.UNPROCESSABLE_IMAGE in document.failures)
+                }
             }
         }
+
+    private fun assertMetadataSafeFallback(
+        attachment: dev.ipf.whitenoise.android.state.PendingAttachment,
+        original: ByteArray,
+    ) {
+        assertEquals("image/jpeg", attachment.mediaType)
+        assertFalse(attachment.plaintextBytes.contentEquals(original))
+        val encoded = attachment.plaintextBytes.toString(Charsets.ISO_8859_1)
+        assertFalse(encoded.contains("synthetic-private-"))
+        assertNull(attachment.sourceFile)
+    }
 
     @Test
     fun providerMimeAndLyingSizeCannotBypassDocumentOrByteAdmission() =

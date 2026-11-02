@@ -180,7 +180,7 @@ internal class ReusableMediaTransport(
             ) {
                 return@serialized null
             }
-            val capacity = MediaDecodePolicy.outputCapacity(edge) ?: return@serialized null
+            val capacity = region.targetSize(edge)?.capacity ?: return@serialized null
             SharedMemory.create("media-vector-region", capacity).use { output ->
                 val spec = MediaDecodeRequest(edge, false, MediaDecodePolicy.VIEWER_SVG_REGION, svgRegion = region)
                 request(bytes, spec, output)?.let { copyPixels(it, output, edge) }

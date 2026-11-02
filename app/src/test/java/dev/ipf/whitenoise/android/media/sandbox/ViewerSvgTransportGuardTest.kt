@@ -44,11 +44,11 @@ class ViewerSvgTransportGuardTest {
             val oversized = ByteArray(GroupSvgPolicy.MAX_BYTES + 1)
             assertNull(transport.svgInspect(oversized))
             assertNull(transport.svgRegion(oversized, region, 256))
-            assertNull(transport.svgRegion(bytes, region, 2049))
+            assertNull(transport.svgRegion(bytes, region, 4097))
             assertNull(transport.svgRegion(bytes, region.copy(left = Double.NaN), 256))
             assertNull(transport.svgRegion(bytes, region.copy(right = 8193.0), 256))
             assertEquals(0, bindings)
-            assertNull(transport.svgInspect(bytes))
+            assertNull(transport.svgRegion(bytes, ViewerSvgRegion(0.0, 0.0, 12.0, 24.0), 2803))
             assertTrue(
                 "Valid input must reach the refused platform boundary, not an earlier generic failure",
                 bindings > 0,

@@ -3,6 +3,7 @@ package dev.ipf.whitenoise.android.ui.conversation.media
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import dev.ipf.whitenoise.android.media.sandbox.MediaImageRegion
+import dev.ipf.whitenoise.android.media.sandbox.ViewerSvgDecoder
 import dev.ipf.whitenoise.android.media.sandbox.ViewerSvgRegion
 import dev.ipf.whitenoise.android.ui.common.viewerFitGeometry
 import kotlin.math.ceil
@@ -143,8 +144,10 @@ internal sealed interface ViewerDetailRegion {
             )
     }
 
+    /** Pixel demand belongs to the request key so a resized viewport cannot reuse an undersampled tile. */
     data class Vector(
         val region: ViewerSvgRegion,
+        val edge: Int,
     ) : ViewerDetailRegion {
         override val rectangle get() =
             Rect(
@@ -156,10 +159,13 @@ internal sealed interface ViewerDetailRegion {
     }
 }
 
+/** Quantized source bounds plus actual screen-pixel demand; raster detail retains its existing budget. */
 internal fun ViewerViewportGeometry.detailRequest(vector: Boolean): ViewerDetailRegion? =
     if (vector) {
         vectorDetailRegion()?.let {
-            ViewerDetailRegion.Vector(it)
+            val screenEdge = maxOf(it.width, it.height) * sourcePixelScale
+            val edge = ceil(screenEdge).coerceIn(1.0, ViewerSvgDecoder.MAX_VIEWPORT_EDGE.toDouble()).toInt()
+            ViewerDetailRegion.Vector(it, edge)
         }
     } else {
         detailRegion()?.let {

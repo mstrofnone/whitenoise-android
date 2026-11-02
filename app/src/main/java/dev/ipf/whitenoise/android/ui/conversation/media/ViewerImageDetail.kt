@@ -212,7 +212,7 @@ private fun viewerImageDetailPresentation(
     }
 }
 
-/** Only static admitted raster sources reach region decoding; animation admission is resolved by the page. */
+/** Static admitted sources refine the viewport; vectors use screen-pixel demand and a rectangular area cap. */
 internal suspend fun decodeViewerDetail(
     source: ViewerOriginalImage,
     region: ViewerDetailRegion,
@@ -225,7 +225,7 @@ internal suspend fun decodeViewerDetail(
                         IsolatedMediaDecoder.svgRegion(
                             source.bytes,
                             region.region,
-                            VIEWER_DETAIL_EDGE,
+                            region.edge,
                         )
                     is ViewerDetailRegion.Raster ->
                         IsolatedMediaDecoder.region(

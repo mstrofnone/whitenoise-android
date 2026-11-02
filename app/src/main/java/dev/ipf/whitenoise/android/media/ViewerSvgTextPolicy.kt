@@ -85,6 +85,11 @@ internal object ViewerSvgTextPolicy {
                 ),
         )
 
+    /**
+     * Checks attributes on the current start tag without advancing [parser].
+     * Restricts text typography and numeric values; complete document admission remains in [GroupSvgPolicy].
+     * Throws [IllegalArgumentException] for attributes or values outside the bounded viewer subset.
+     */
     fun validate(parser: XmlPullParser) {
         for (index in 0 until parser.attributeCount) {
             val name = parser.getAttributeName(index)
@@ -103,11 +108,13 @@ internal object ViewerSvgTextPolicy {
         }
     }
 
+    /** Accepts finite stop offsets in 0..1, or the equivalent 0..100 percent range. */
     private fun validateGradientOffset(value: String) {
         val limit = if (value.endsWith("%")) 100.0 else 1.0
         require(value.removeSuffix("%").toDoubleOrNull()?.let { it.isFinite() && it in 0.0..limit } == true)
     }
 
+    /** Bounds coordinate lists and requires font size to be one positive coordinate. */
     private fun validateCoordinates(
         name: String,
         value: String,
@@ -118,6 +125,7 @@ internal object ViewerSvgTextPolicy {
         if (name == "font-size") require(values.size == 1 && values.single().removeSuffix("px").toDouble() > 0)
     }
 
+    /** Accepts the finite numeric subset with an optional pixel suffix and bounded magnitude. */
     private fun validCoordinate(value: String): Boolean =
         number.matches(value) &&
             value.removeSuffix("px").toDoubleOrNull()?.let {

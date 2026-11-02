@@ -9,6 +9,11 @@ import kotlin.math.sin
 internal class ViewerSvgTransformPolicy {
     private val ancestors = ArrayDeque<Affine>()
 
+    /**
+     * Validates the current start tag and tracks its depth-scoped ancestor transform.
+     * Call in document order without advancing [parser]; excessive composed matrices are rejected.
+     * Gradient transforms are checked independently because gradient inheritance is not admitted.
+     */
     fun validate(parser: XmlPullParser) {
         while (ancestors.size >= parser.depth) ancestors.removeLast()
         val parent = ancestors.lastOrNull() ?: Affine()
@@ -18,6 +23,10 @@ internal class ViewerSvgTransformPolicy {
         parse(parser.getAttributeValue(null, "gradientTransform"))
     }
 
+    /**
+     * Parses bounded matrix, translate, scale and rotate operations in document order.
+     * Absence means identity; malformed, unsupported or over-budget transforms throw.
+     */
     private fun parse(value: String?): Affine {
         if (value == null) return Affine()
         var result = Affine()
@@ -39,6 +48,7 @@ internal class ViewerSvgTransformPolicy {
         return result
     }
 
+    /** Enforces the supported affine operation names and each operation's argument count. */
     private fun operation(
         name: String,
         values: List<Double>,
@@ -67,6 +77,7 @@ internal class ViewerSvgTransformPolicy {
             else -> error("Unsupported bounded viewer transform")
         }
 
+    /** Builds a bounded rotation, optionally around the explicitly supplied pivot. */
     private fun rotation(values: List<Double>): Affine {
         require(values.size == 1 || values.size == ROTATION_PIVOT_COMPONENT_COUNT)
         val angle = Math.toRadians(values[0])
@@ -93,6 +104,7 @@ internal class ViewerSvgTransformPolicy {
             require(listOf(e, f).all { it.isFinite() && abs(it) <= MAX_TRANSLATION_COMPONENT })
         }
 
+        /** Composes the next local matrix and rechecks all resulting numeric budgets. */
         fun then(next: Affine): Affine =
             Affine(
                 a * next.a + c * next.b,

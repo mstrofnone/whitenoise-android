@@ -2,6 +2,7 @@ package dev.ipf.whitenoise.android.ui.conversation.media
 
 import androidx.compose.ui.geometry.Offset
 import dev.ipf.whitenoise.android.media.sandbox.MediaImageRegion
+import dev.ipf.whitenoise.android.media.sandbox.targetSize
 import dev.ipf.whitenoise.android.ui.common.ViewerGestureConsumption
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -48,7 +49,7 @@ class ViewerViewportGeometryTest {
         val region = requireNotNull(geometry.vectorDetailRegion())
         assertTrue(region.width < 0.1 && region.height < 0.1)
         assertTrue(region.validFor(24, 24))
-        val target = geometry.sourceRectOnScreen(ViewerDetailRegion.Vector(region).rectangle)
+        val target = geometry.sourceRectOnScreen(requireNotNull(geometry.detailRequest(true)).rectangle)
         assertTrue(target.left <= 0 && target.top <= 0 && target.right >= 400 && target.bottom >= 400)
     }
 
@@ -80,5 +81,27 @@ class ViewerViewportGeometryTest {
         assertNull(viewerFallbackEdge(8000, 8000))
         assertNull(viewerFallbackEdge(1920, 1080))
         assertNull(viewerFallbackEdge(0, 1000))
+    }
+
+    /** Phone-sized tiles include their quantization halo when requesting actual display pixels. */
+    @Test
+    fun vectorDetailUsesPhonePixelDemandAndIncludesResolutionInItsKey() {
+        for ((width, height) in listOf(1080 to 2424, 2424 to 1080)) {
+            val geometry = ViewerViewportGeometry(width, height, 24, 24, 1024f, Offset.Zero)
+            val request = geometry.detailRequest(true) as ViewerDetailRegion.Vector
+            val screen = geometry.sourceRectOnScreen(request.rectangle)
+            assertTrue(request.edge > 2048)
+            assertTrue(request.edge >= maxOf(screen.width, screen.height))
+            val target = requireNotNull(request.region.targetSize(request.edge))
+            assertTrue(target.width >= screen.width)
+            assertTrue(target.height >= screen.height)
+            assertTrue(target.capacity <= 16 * 1024 * 1024)
+        }
+        val geometry = ViewerViewportGeometry(400, 400, 24, 24, 1024f, Offset.Zero)
+        val small = geometry.detailRequest(true) as ViewerDetailRegion.Vector
+        val large = geometry.copy(width = 800, height = 800).detailRequest(true) as ViewerDetailRegion.Vector
+        assertEquals(small.region, large.region)
+        assertTrue(large.edge > small.edge)
+        assertFalse(small == large)
     }
 }

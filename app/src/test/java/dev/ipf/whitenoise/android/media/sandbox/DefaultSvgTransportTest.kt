@@ -55,12 +55,12 @@ class DefaultSvgTransportTest {
                 val region = ViewerSvgRegion(0.0, 0.0, 24.0, 24.0)
                 withContext(Dispatchers.IO) {
                     assertNull(IsolatedMediaDecoder.svgInspect(ByteArray(GroupSvgPolicy.MAX_BYTES + 1)))
-                    assertNull(IsolatedMediaDecoder.svgRegion(source, region, 2049))
+                    assertNull(IsolatedMediaDecoder.svgRegion(source, region, 4097))
                     assertNull(IsolatedMediaDecoder.svgRegion(source, region.copy(left = Double.NaN), 256))
                     assertEquals(0, bindings.get())
                     assertNull(IsolatedMediaDecoder.svgInspect(source))
                     assertEquals("Valid metadata reaches the real refused binding", 1, bindings.get())
-                    assertNull(IsolatedMediaDecoder.svgRegion(source, region, 256))
+                    assertNull(IsolatedMediaDecoder.svgRegion(source, ViewerSvgRegion(0.0, 0.0, 12.0, 24.0), 2803))
                     assertEquals("Valid vector pixels reach the same default transport", 2, bindings.get())
                 }
             } finally {
