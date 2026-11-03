@@ -41,6 +41,7 @@ import dev.ipf.whitenoise.android.core.RecipientSearch
 import dev.ipf.whitenoise.android.state.WhiteNoiseAppState
 import dev.ipf.whitenoise.android.ui.common.TopNoticeSlot
 import dev.ipf.whitenoise.android.ui.common.WhiteNoiseLazyColumn
+import dev.ipf.whitenoise.android.ui.common.abbreviatesPublicKey
 import dev.ipf.whitenoise.android.ui.icons.Icons
 import dev.ipf.whitenoise.android.ui.icons.automirrored.filled.ArrowBack
 import dev.ipf.whitenoise.android.ui.icons.automirrored.filled.ArrowForward
@@ -324,6 +325,7 @@ internal fun ContactPickerScreen(
                             enabled = !busy && !alreadyMember,
                             onClick = { toggle(candidate) },
                             onLongClick = { appState.presentProfile(candidate.npub) },
+                            publicKey = appState.npubForDisplay(resolvedAccountIdHex).takeUnless { alreadyMember },
                             trailing = {
                                 SelectionIndicator(selected = isSelected, dimmed = alreadyMember)
                             },
@@ -353,6 +355,11 @@ internal fun ContactPickerScreen(
                     item { SectionHeader(stringResource(R.string.contacts)) }
                     items(matches, key = { it.accountIdHex }) { candidate ->
                         val isSelected = candidate.accountIdHex.lowercase(Locale.ROOT) in selectedHexes
+                        val subtitleIsKey =
+                            !addressQuery && !candidate.isFollowing && candidate.searchProfile == null
+                        val candidateNpub = appState.npubForDisplay(candidate.accountIdHex)
+                        // A followed or search-result contact without a name is titled by its key fallback (#3565).
+                        val titleIsKey = !subtitleIsKey && abbreviatesPublicKey(candidate.displayName, candidateNpub)
                         ContactRow(
                             title = candidate.displayName,
                             subtitle =
@@ -362,6 +369,8 @@ internal fun ContactPickerScreen(
                                     candidate.searchProfile != null -> stringResource(R.string.user_search_result)
                                     else -> appState.shortNpub(candidate.accountIdHex).takeIf { it.isNotBlank() }
                                 },
+                            publicKey = candidateNpub.takeIf { subtitleIsKey || titleIsKey },
+                            publicKeyInTitle = titleIsKey,
                             avatarSeed = candidate.accountIdHex,
                             avatarUrl =
                                 appState.contactAvatarSource(candidate.accountIdHex)
